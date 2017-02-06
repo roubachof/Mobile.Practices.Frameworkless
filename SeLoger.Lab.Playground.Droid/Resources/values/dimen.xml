@@ -1,0 +1,36 @@
+﻿<resources>
+
+  <!-- Define standard dimensions to comply with Holo-style grids and rhythm. -->
+  <dimen name="spacing_tiniest">2dp</dimen>
+  <dimen name="spacing_tiny">4dp</dimen>
+  <dimen name="spacing_small">8dp</dimen>
+  <dimen name="spacing_medium_small">12dp</dimen>
+  <dimen name="spacing_medium">16dp</dimen>
+  <dimen name="spacing_medium_large">24dp</dimen>
+  <dimen name="spacing_large">32dp</dimen>
+  <dimen name="spacing_very_large">48dp</dimen>
+  <dimen name="spacing_huge">64dp</dimen>
+
+  <!-- Text Semantic -->
+  <dimen name="text_headline">23sp</dimen>
+  <dimen name="text_title">20sp</dimen>
+  <dimen name="text_subhead">16sp</dimen>
+  <dimen name="text_body">14sp</dimen>
+  <dimen name="text_caption">12sp</dimen>
+  <dimen name="text_caption_small">10sp</dimen>
+
+  <dimen name="text_menu">16sp</dimen>
+  <dimen name="text_button">14sp</dimen>
+
+  <dimen name="image_avatar_size">40dp</dimen>
+
+  <!-- ListView -->
+  <dimen name="list_single_height">48dp</dimen>
+  <dimen name="list_two_lines_height">72dp</dimen>
+  <dimen name="list_three_lines_height">88dp</dimen>
+  <dimen name="list_marginLeft_relative">56dp</dimen>
+  <dimen name="list_marginLeft_absolute">72dp</dimen>
+
+  <!-- Item Details -->
+  <dimen name="item_details_height">72dp</dimen>
+</resources>

@@ -1,0 +1,14 @@
+﻿{
+  "supports": {},
+  "dependencies": {
+    "Conditions.NetStandard": "1.0.0",
+    "MetroLog": "1.0.1",
+    "Nito.Mvvm.Core": "1.1.0",
+    "SimpleInjector": "3.3.2",
+    "System.Collections.Immutable": "1.3.0",
+    "ThomasLevesque.WeakEvent": "1.0.1"
+  },
+  "frameworks": {
+    ".NETPortable,Version=v4.6,Profile=Profile44": {}
+  }
+}
