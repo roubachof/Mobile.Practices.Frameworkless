@@ -118,8 +118,7 @@ A cause des joyeusetés de Xamarin (GC cross ref)
 
 ### Maîtriser l'état
 
-* Préconditions sur méthodes `public` =>
-https://github.com/ghuntley/conditions <br>
+* Notions de design by contract `precondition`, `postconditions`, throw Exception en Debug => tests unitaires
 * Eviter les variables `Nullables`
 * Toujours assigner les listes par défaut (dans constructeur par défaut par exemple)
 * Contrôler la cohérence des données le plus tôt possible
