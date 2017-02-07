@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using MetroLog;
+
 using SeLoger.Lab.Playground.Core.Services;
 using SeLoger.Lab.Playground.Core.ViewModels.Extensions;
 
@@ -13,6 +15,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
     {
         NotStarted = 0,
         Loading,
+        LoadingMore,
         SuccessfullyLoaded,
         SuccessfullyLoadedNoResults,
         CommunicationError,
@@ -21,6 +24,8 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
 
     public class SillyPeopleViewModel
     {
+        private static readonly ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(SillyPeopleViewModel));
+
         private const int PAGE_SIZE = 50;
 
         private const int MAX_ITEMS = 300;
@@ -50,6 +55,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
 
         public void Load()
         {
+            Log.Info("Loading view model");
             Paginator.LoadPage(1);
         }
 
@@ -63,6 +69,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
         
         private void OnPaginatorTaskCompleted()
         {
+            Log.Info("OnPaginatorTaskCompleted");
             _taskCompletedSource.Raise(this, EventArgs.Empty);
         }
     }

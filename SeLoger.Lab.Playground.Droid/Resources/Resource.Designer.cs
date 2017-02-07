@@ -2056,37 +2056,49 @@ namespace SeLoger.Lab.Playground.Droid
 			public const int abc_vector_test = 2130837586;
 			
 			// aapt resource value: 0x7f020053
-			public const int design_fab_background = 2130837587;
+			public const int bug_24dp = 2130837587;
 			
 			// aapt resource value: 0x7f020054
-			public const int design_ic_visibility = 2130837588;
+			public const int design_fab_background = 2130837588;
 			
 			// aapt resource value: 0x7f020055
-			public const int design_snackbar_background = 2130837589;
+			public const int design_ic_visibility = 2130837589;
 			
 			// aapt resource value: 0x7f020056
-			public const int jean_claude_van_damme = 2130837590;
+			public const int design_snackbar_background = 2130837590;
 			
 			// aapt resource value: 0x7f020057
-			public const int knights_of_ni = 2130837591;
+			public const int jean_claude_van_damme = 2130837591;
 			
 			// aapt resource value: 0x7f020058
-			public const int louis_ck = 2130837592;
+			public const int knights_of_ni = 2130837592;
 			
 			// aapt resource value: 0x7f020059
-			public const int navigation_empty_icon = 2130837593;
-			
-			// aapt resource value: 0x7f02005d
-			public const int notification_template_icon_bg = 2130837597;
+			public const int louis_ck = 2130837593;
 			
 			// aapt resource value: 0x7f02005a
-			public const int silly_48dp = 2130837594;
+			public const int navigation_empty_icon = 2130837594;
+			
+			// aapt resource value: 0x7f020061
+			public const int notification_template_icon_bg = 2130837601;
 			
 			// aapt resource value: 0x7f02005b
-			public const int silly_96dp = 2130837595;
+			public const int sad_cloud_24dp = 2130837595;
 			
 			// aapt resource value: 0x7f02005c
-			public const int will_ferrell = 2130837596;
+			public const int search_24dp = 2130837596;
+			
+			// aapt resource value: 0x7f02005d
+			public const int server_24dp = 2130837597;
+			
+			// aapt resource value: 0x7f02005e
+			public const int silly_48dp = 2130837598;
+			
+			// aapt resource value: 0x7f02005f
+			public const int silly_96dp = 2130837599;
+			
+			// aapt resource value: 0x7f020060
+			public const int will_ferrell = 2130837600;
 			
 			static Drawable()
 			{

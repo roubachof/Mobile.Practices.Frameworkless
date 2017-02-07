@@ -31,9 +31,14 @@ namespace SeLoger.Lab.Playground.Core.ViewModels.Extensions
 
                 return ViewModelState.SuccessfullyLoaded;
             }
-
+            
             if (paginator.NotifyTask.IsNotCompleted)
             {
+                if (paginator.LoadedCount > 0)
+                {
+                    return ViewModelState.LoadingMore;
+                }
+
                 return ViewModelState.Loading;
             }
 

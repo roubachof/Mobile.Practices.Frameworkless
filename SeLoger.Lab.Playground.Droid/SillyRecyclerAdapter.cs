@@ -55,13 +55,18 @@ namespace SeLoger.Lab.Playground.Droid
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.item_silly, parent, false);
-            return new SillyViewHolder(itemView);
+            return new SillyViewHolder(itemView, OnClick);
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var viewHolder = (SillyViewHolder)holder;
             viewHolder.Update(_contextReference, _data[position]);
+        }
+
+        private void OnClick(int position)
+        {
+            _itemClickedSource.Raise(this, _data[position]);
         }               
     }
 
@@ -102,7 +107,5 @@ namespace SeLoger.Lab.Playground.Droid
                 Glide.With(context).Load(itemViewModel.ImageUrl).Into(_photoView);
             }
         }
-        
-
     }
 }
