@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Conditions;
 
 using MetroLog;
 
@@ -101,7 +100,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
 
         public void LoadPage(int pageNumber)
         {
-            pageNumber.Requires().IsGreaterThan(0);
+            Debug.Assert(pageNumber > 0);
 
             Log.Info($"Loading page n°{pageNumber}");
             lock(_syncRoot)
@@ -121,6 +120,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
                    .WithWhenSuccessfullyCompleted(OnPageRetrieved)
                    .WithWhenFaulted(OnLoadingFaulted)
                    .WithWhenCompleted(_onTaskCompleted)
+                   .WithDefaultResult(PageResult<TResult>.Empty)
                    .Build();
 
                 _pageLoadingTasks.Add(pageNumber, NotifyTask.Task);

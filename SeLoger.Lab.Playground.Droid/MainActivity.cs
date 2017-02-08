@@ -1,8 +1,9 @@
 ﻿using System;
 
 using Android.App;
+using Android.Content;
 using Android.OS;
-
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -14,6 +15,7 @@ using MetroLog;
 using RecyclerViewAnimators.Animators;
 
 using SeLoger.Lab.Playground.Core;
+using SeLoger.Lab.Playground.Core.Services;
 using SeLoger.Lab.Playground.Core.ViewModels;
 
 namespace SeLoger.Lab.Playground.Droid
@@ -28,9 +30,9 @@ namespace SeLoger.Lab.Playground.Droid
         private ProgressBar _loader;
 
         private ErrorViewSwitcher _errorViewSwitcher;
-
+        
         private SillyRecyclerAdapter _adapter;
-
+        
         private SillyPeopleViewModel _viewModel;
 
         protected override void OnCreate(Bundle bundle)
@@ -49,7 +51,7 @@ namespace SeLoger.Lab.Playground.Droid
 
             _loader = FindViewById<ProgressBar>(Resource.Id.progress_loading);
 
-            _errorViewSwitcher = new ErrorViewSwitcher(FindViewById<LinearLayout>(Resource.Id.view_error));
+            _errorViewSwitcher = new ErrorViewSwitcher(this, FindViewById<LinearLayout>(Resource.Id.view_error));
 
             _adapter = new SillyRecyclerAdapter(this);
             _recyclerView = FindViewById<RecyclerView>(Resource.Id.list_silly);
@@ -63,6 +65,7 @@ namespace SeLoger.Lab.Playground.Droid
             base.OnResume();
 
             _adapter.ItemClicked += AdapterOnItemClicked;
+            _recyclerView.AddOnScrollListener(new InfiniteScrollListener(_viewModel.Paginator));
         }
 
         protected override void OnPause()
@@ -71,21 +74,44 @@ namespace SeLoger.Lab.Playground.Droid
             base.OnPause();
 
             _adapter.ItemClicked -= AdapterOnItemClicked;
+            _recyclerView.ClearOnScrollListeners();
         }
 
         private void ViewModelOnTaskCompleted(object sender, EventArgs eventArgs)
         {
             Log.Info($"ViewModelOnTaskCompleted {_viewModel.State}");
 
-            _loader.Visibility = ViewStates.Gone;
+            System.Diagnostics.Debug.Assert(_viewModel.State != ViewModelState.Loading 
+                && _viewModel.State != ViewModelState.NotStarted
+                && _viewModel.State != ViewModelState.LoadingMore);
 
-            _recyclerView.Visibility = _viewModel.Paginator.NotifyTask.IsSuccessfullyCompleted
-                                           ? ViewStates.Visible
-                                           : ViewStates.Gone;
+            UpdateVisibilities(_viewModel.State);
+            UpdateRecyclerView();
+        }
 
-            _errorViewSwitcher.Visibility = _recyclerView.Visibility == ViewStates.Visible
-                                                ? ViewStates.Gone
-                                                : ViewStates.Visible;
+        private void UpdateVisibilities(ViewModelState state)
+        {
+            _loader.Visibility = state == ViewModelState.Loading 
+                ? ViewStates.Visible 
+                : ViewStates.Gone;
+
+            _recyclerView.Visibility = state == ViewModelState.SuccessfullyLoaded
+                ? ViewStates.Visible
+                : ViewStates.Gone;
+
+            _errorViewSwitcher.Switch(state);
+        }
+
+        private void UpdateRecyclerView()
+        {
+            if (_viewModel.State == ViewModelState.SuccessfullyLoaded)
+            {
+                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items);
+            }
+            else
+            {
+                _adapter = new SillyRecyclerAdapter(this);
+            }
         }
 
         private void AdapterOnItemClicked(object sender, SillyDudeItemViewModel viewModel)
@@ -96,6 +122,8 @@ namespace SeLoger.Lab.Playground.Droid
 
     public class ErrorViewSwitcher
     {
+        private readonly WeakReference<Context> _contextReference;
+
         private readonly LinearLayout _errorView;
 
         private readonly ImageView _imageView;
@@ -104,43 +132,50 @@ namespace SeLoger.Lab.Playground.Droid
 
         private readonly Button _buttonView;
 
-        public ErrorViewSwitcher(LinearLayout errorView)
+        public ErrorViewSwitcher(Context context, LinearLayout errorView)
         {
+            _contextReference = new WeakReference<Context>(context);
             _errorView = errorView;
 
             _imageView = errorView.FindViewById<ImageView>(Resource.Id.image_error);
             _textView = errorView.FindViewById<TextView>(Resource.Id.text_error);
             _buttonView = errorView.FindViewById<Button>(Resource.Id.button_retry);
         }
-
-        public ViewStates Visibility
+        
+        public void Switch(ViewModelState viewModelState)
         {
-            get { return _errorView.Visibility; }
-            set { _errorView.Visibility = value; }
-        }
+            Context context;
+            if (!_contextReference.TryGetTarget(out context))
+            {
+                return;
+            }
 
-        public void SwitchFrom(ViewModelState viewModelState)
-        {
             switch (viewModelState)
             {
                 case ViewModelState.SuccessfullyLoadedNoResults:
                     _imageView.SetImageResource(Resource.Drawable.search_24dp);
-                    _textView.Text = Resource.String.no_results;
+                    _textView.Text = context.GetString(Resource.String.no_results);
                     _buttonView.Visibility = ViewStates.Gone;
                     break;
+
                 case ViewModelState.CommunicationError:
                     _imageView.SetImageResource(Resource.Drawable.sad_cloud_24dp);
-                    _textView.Text = Resource.String.error_network;
+                    _textView.Text = context.GetString(Resource.String.error_network);
                     _buttonView.Visibility = ViewStates.Visible;
                     break;
+
                 case ViewModelState.UnhandledError:
                     _imageView.SetImageResource(Resource.Drawable.bug_24dp);
-                    _textView.Text = Resource.String.error_unknown;
+                    _textView.Text = context.GetString(Resource.String.error_unknown);
                     _buttonView.Visibility = ViewStates.Visible;
                     break;
+
                 default:
-                    break;
+                    _errorView.Visibility = ViewStates.Gone;
+                    return;
             }
+
+            _errorView.Visibility = ViewStates.Visible;
         }
     }
 }

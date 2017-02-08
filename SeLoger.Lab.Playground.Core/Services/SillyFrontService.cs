@@ -10,10 +10,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Conditions;
 
 using SeLoger.Lab.Playground.Core.Models;
 
@@ -46,6 +45,8 @@ namespace SeLoger.Lab.Playground.Core.Services
 
     public struct PageResult<TItem>
     {
+        public static readonly PageResult<TItem> Empty = new PageResult<TItem>(0, new List<TItem>());
+
         public readonly int TotalCount;
 
         public readonly IReadOnlyList<TItem> Items;
@@ -142,8 +143,8 @@ namespace SeLoger.Lab.Playground.Core.Services
 
         public async Task<PageResult<SillyDudeModel>> GetSillyPeoplePage(int pageNumber, int pageSize)
         {
-            pageNumber.Requires().IsGreaterThan(0);
-            pageSize.Requires().IsGreaterOrEqual(10);
+            Debug.Assert(pageNumber > 0);
+            Debug.Assert(pageSize >= 10);
 
             await _httpClient.ShittyGetStuff();
 

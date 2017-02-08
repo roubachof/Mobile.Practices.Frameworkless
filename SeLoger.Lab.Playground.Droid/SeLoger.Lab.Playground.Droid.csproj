@@ -56,6 +56,14 @@
     </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
+    <Reference Include="Nito.Disposables, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nito.Disposables.1.0.0\lib\portable45-net45+win8+wp8+wpa81\Nito.Disposables.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Nito.Mvvm.Core, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nito.Mvvm.Core.1.1.0\lib\portable45-net45+win8+wp8+wpa81\Nito.Mvvm.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="RecyclerViewAnimators, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RecyclerViewAnimators.2.1.0.0\lib\MonoAndroid403\RecyclerViewAnimators.dll</HintPath>
       <Private>True</Private>
@@ -72,6 +80,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="WeakEvent, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -125,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DroidEntryPointSingleton.cs" />
+    <Compile Include="InfiniteScrollListener.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,8 +142,7 @@
     <Compile Include="SplashScreen.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\AboutAssets.txt" />
-    <AndroidResource Include="Resources\layout\splash.xml">
+    <AndroidResource Include="Resources\layout\splash.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
@@ -175,10 +184,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\main.xml" />
+    <AndroidResource Include="Resources\layout\main.axml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\item_silly.xml" />
+    <AndroidResource Include="Resources\layout\item_silly.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xhdpi\silly_96dp.png" />
@@ -199,7 +208,10 @@
     <AndroidResource Include="Resources\drawable-xxxhdpi\server_24dp.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\view_error.xml" />
+    <AndroidResource Include="Resources\layout\view_error.axml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.24.2.1\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.24.2.1\build\Xamarin.Android.Support.Vector.Drawable.targets')" />

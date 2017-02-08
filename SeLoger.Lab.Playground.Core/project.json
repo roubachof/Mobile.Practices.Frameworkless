@@ -1,7 +1,6 @@
 ﻿{
   "supports": {},
   "dependencies": {
-    "Conditions.NetStandard": "1.0.0",
     "MetroLog": "1.0.1",
     "Nito.Mvvm.Core": "1.1.0",
     "SimpleInjector": "3.3.2",
