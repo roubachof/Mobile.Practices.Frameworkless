@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
   
-  <style name="ZoliTheme" parent="Theme.App">
-    <!--<item name="windowActionBar">false</item>
-    <item name="windowNoTitle">true</item>-->
+  <style name="ZoliTheme" parent="Theme.App">    
   </style>
 
   <style name="ZoliTheme.Splash" parent="ZoliTheme">

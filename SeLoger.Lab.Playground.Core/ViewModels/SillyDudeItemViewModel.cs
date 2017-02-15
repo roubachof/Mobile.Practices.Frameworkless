@@ -8,11 +8,11 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
         {
             ImageUrl = model.ImageUrl;
             Name = $"{model.Id}. {model.Name}";
-            Description = model.Description;
+            Role = model.Role;
         }
 
         public string ImageUrl { get; }
         public string Name { get; }
-        public string Description { get; }
+        public string Role { get; }
     }
 }

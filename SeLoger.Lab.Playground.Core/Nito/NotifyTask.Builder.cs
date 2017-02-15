@@ -7,12 +7,6 @@ namespace SeLoger.Lab.Playground.Core.Nito
     {
         public abstract class BuilderBase 
         {
-            protected BuilderBase(Task task)
-            {
-                Task = task;
-            }
-
-            protected Task Task { get; private set; }
             protected Action WhenCompleted { get; set; }
             protected Action WhenCanceled { get; set; }
             protected Action<Exception> WhenFaulted { get; set; }
@@ -20,10 +14,12 @@ namespace SeLoger.Lab.Playground.Core.Nito
 
         public class Builder : BuilderBase
         {
-            public Builder(Task task)
-                : base(task)
+            public Builder(Func<Task> task)
             {
+                TaskFunc = task;
             }
+
+            protected Func<Task> TaskFunc { get; }
 
             protected Action WhenSuccessfullyCompleted { get; private set; }
 
@@ -53,18 +49,18 @@ namespace SeLoger.Lab.Playground.Core.Nito
 
             public NotifyTask Build()
             {
-                return new NotifyTask(Task, WhenCanceled, WhenFaulted, WhenCompleted, WhenSuccessfullyCompleted);
+                return new NotifyTask(TaskFunc(), WhenCanceled, WhenFaulted, WhenCompleted, WhenSuccessfullyCompleted);
             }
         }
 
         public class Builder<TResult> : BuilderBase
         {
-            public Builder(Task<TResult> task)
-                : base(task)
+            public Builder(Func<Task<TResult>> taskFunc)
             {
+                TaskFunc = taskFunc;
             }
 
-            protected new Task<TResult> Task { get; private set; }
+            protected Func<Task<TResult>> TaskFunc { get; }
 
             protected Action<TResult> WhenSuccessfullyCompleted { get; private set; }
 
@@ -102,7 +98,7 @@ namespace SeLoger.Lab.Playground.Core.Nito
 
             public NotifyTask<TResult> Build()
             {
-                return new NotifyTask<TResult>(Task, DefaultResult, WhenCanceled, WhenFaulted, WhenCompleted, WhenSuccessfullyCompleted);
+                return new NotifyTask<TResult>(TaskFunc(), DefaultResult, WhenCanceled, WhenFaulted, WhenCompleted, WhenSuccessfullyCompleted);
             }
         }
     }

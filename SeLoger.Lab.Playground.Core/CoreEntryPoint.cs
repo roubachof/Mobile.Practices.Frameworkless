@@ -25,20 +25,11 @@ namespace SeLoger.Lab.Playground.Core
         /// </summary>
         private static readonly Assembly ProjectAssembly = typeof(CoreEntryPoint).GetTypeInfo().Assembly;
 
-        /// <summary>
-        /// The register dependencies async.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         public async Task RegisterDependenciesAsync()
         {
             await Task.Run(() => this.RegisterDependencies());
         }
-
-        /// <summary>
-        /// The register dependencies.
-        /// </summary>
+        
         private void RegisterDependencies()
         {
             var container = DependencyContainer.Instance;

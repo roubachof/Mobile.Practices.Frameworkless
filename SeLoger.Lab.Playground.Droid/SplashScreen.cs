@@ -21,7 +21,8 @@ namespace SeLoger.Lab.Playground.Droid
     [Activity(
         Theme = "@style/ZoliTheme.Splash", 
         MainLauncher = true,
-        NoHistory = true, 
+        NoHistory = true,
+        Icon = "@drawable/silly_96dp",
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class SplashScreen : AppCompatActivity
     {

@@ -49,7 +49,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
         
         public int LoadedCount => Items.Count;
 
-        public bool IsFull => LoadedCount >= TotalCount;
+        public bool IsFull => HasStarted && LoadedCount >= TotalCount;
 
         public int PageSize { get; }
         
@@ -116,7 +116,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
                     Log.Info($"Cannot load page {pageNumber} max item count has already been reached ({_maxItemCount})");
                 }
 
-                NotifyTask = new NotifyTaskBase.Builder<PageResult<TResult>>(_pageSourceLoader(pageNumber, PageSize))
+                NotifyTask = new NotifyTaskBase.Builder<PageResult<TResult>>(() => _pageSourceLoader(pageNumber, PageSize))
                    .WithWhenSuccessfullyCompleted(OnPageRetrieved)
                    .WithWhenFaulted(OnLoadingFaulted)
                    .WithWhenCompleted(_onTaskCompleted)

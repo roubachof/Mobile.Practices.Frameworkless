@@ -60,26 +60,28 @@ namespace SeLoger.Lab.Playground.Core.Nito
             }
         }
 
+        protected virtual bool HasCallbacks => _whenCanceled != null || _whenCompleted != null || _whenFaulted != null;
+
         private void NotifyProperties(Task task)
         {
             var propertyChanged = PropertyChanged;
-            if (propertyChanged == null)
+            if (propertyChanged == null && !HasCallbacks)
                 return;
 
             if (task.IsCanceled)
             {
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("IsCanceled"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("IsCanceled"));
 
                 _whenCanceled?.Invoke();
             }
             else if (task.IsFaulted)
             {
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("Exception"));
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("InnerException"));
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("ErrorMessage"));
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
-                propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("IsFaulted"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("Exception"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("InnerException"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("ErrorMessage"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
+                propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("IsFaulted"));
 
                 _whenFaulted?.Invoke(task.Exception.InnerException);
             }
@@ -88,16 +90,16 @@ namespace SeLoger.Lab.Playground.Core.Nito
                 OnSuccessfullyCompleted(propertyChanged);
             }
 
-            propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("IsCompleted"));
-            propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("IsNotCompleted"));
+            propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("IsCompleted"));
+            propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("IsNotCompleted"));
 
             _whenCompleted?.Invoke();
         }
 
         protected virtual void OnSuccessfullyCompleted(PropertyChangedEventHandler propertyChanged)
         {
-            propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
-            propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("IsSuccessfullyCompleted"));
+            propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("Status"));
+            propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("IsSuccessfullyCompleted"));
         }
 
         /// <summary>
@@ -218,6 +220,8 @@ namespace SeLoger.Lab.Playground.Core.Nito
             TaskCompleted = MonitorTaskAsync(task);
         }
 
+        protected override bool HasCallbacks => base.HasCallbacks || _whenSuccessfullyCompleted != null;
+
         protected override void OnSuccessfullyCompleted(PropertyChangedEventHandler propertyChanged)
         {
             base.OnSuccessfullyCompleted(propertyChanged);
@@ -264,11 +268,13 @@ namespace SeLoger.Lab.Playground.Core.Nito
 
         protected override void OnSuccessfullyCompleted(PropertyChangedEventHandler propertyChanged)
         {
-            propertyChanged(this, PropertyChangedEventArgsCache.Instance.Get("Result"));
+            propertyChanged?.Invoke(this, PropertyChangedEventArgsCache.Instance.Get("Result"));
             base.OnSuccessfullyCompleted(propertyChanged);
 
             _whenSuccessfullyCompleted?.Invoke(Result);
         }
+
+        protected override bool HasCallbacks => base.HasCallbacks || _whenSuccessfullyCompleted != null;
 
         /// <summary>
         /// Gets the task being watched. This property never changes and is never <c>null</c>.

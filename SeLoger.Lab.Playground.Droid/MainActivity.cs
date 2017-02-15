@@ -3,27 +3,28 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.Content;
+using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-
-using Com.Bumptech.Glide.Load.Model;
 
 using MetroLog;
 
 using RecyclerViewAnimators.Animators;
 
 using SeLoger.Lab.Playground.Core;
-using SeLoger.Lab.Playground.Core.Services;
 using SeLoger.Lab.Playground.Core.ViewModels;
+
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace SeLoger.Lab.Playground.Droid
 {
-    [Activity(Label = "SeLoger.Lab.Playground.Droid", MainLauncher = true, Icon = "@drawable/silly_96dp")]
-    public class MainActivity : Activity
+    [Activity]
+    public class MainActivity : AppCompatActivity
     {
         private static readonly ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(MainActivity));
+
+        private Toolbar _toolbar;
 
         private RecyclerView _recyclerView;
 
@@ -39,7 +40,7 @@ namespace SeLoger.Lab.Playground.Droid
         {
             Log.Info("OnCreate");
             base.OnCreate(bundle);
-
+            
             _viewModel = DependencyContainer.Instance.GetInstance<SillyPeopleViewModel>();
 
             // No need to unsubscribe => weakevent
@@ -49,6 +50,10 @@ namespace SeLoger.Lab.Playground.Droid
             
             SetContentView(Resource.Layout.main);
 
+            _toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
+            _toolbar.Title = _viewModel.Title;
+            SetSupportActionBar(_toolbar);
+
             _loader = FindViewById<ProgressBar>(Resource.Id.progress_loading);
 
             _errorViewSwitcher = new ErrorViewSwitcher(this, FindViewById<LinearLayout>(Resource.Id.view_error));
@@ -57,6 +62,7 @@ namespace SeLoger.Lab.Playground.Droid
             _recyclerView = FindViewById<RecyclerView>(Resource.Id.list_silly);
             _recyclerView.SetItemAnimator(new ScaleInAnimator());
             _recyclerView.SetAdapter(_adapter);
+            _recyclerView.SetLayoutManager(new LinearLayoutManager(this));
         }
 
         protected override void OnResume()
@@ -85,6 +91,8 @@ namespace SeLoger.Lab.Playground.Droid
                 && _viewModel.State != ViewModelState.NotStarted
                 && _viewModel.State != ViewModelState.LoadingMore);
 
+            _toolbar.Title = _viewModel.Title;
+
             UpdateVisibilities(_viewModel.State);
             UpdateRecyclerView();
         }
@@ -106,7 +114,7 @@ namespace SeLoger.Lab.Playground.Droid
         {
             if (_viewModel.State == ViewModelState.SuccessfullyLoaded)
             {
-                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items);
+                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items, _viewModel.Paginator.NotifyTask.Result.TotalCount);
             }
             else
             {
