@@ -116,10 +116,16 @@ A cause des joyeusetés de Xamarin (GC cross ref)
 
 [Memory Perf Best Practices](https://developer.xamarin.com/guides/cross-platform/deployment,_testing,_and_metrics/memory_perf_best_practices/)
 
-### Maîtriser l'état
+### Maîtriser l'état (1/2)
 
 * Notions de design by contract `precondition`, `postconditions`, throw Exception en Debug => tests unitaires
-* Eviter les variables `Nullables`
-* Toujours assigner les listes par défaut (dans constructeur par défaut par exemple)
-* Contrôler la cohérence des données le plus tôt possible
+  * Eviter les variables `Nullables`
+  * Toujours assigner les listes par défaut (dans constructeur par défaut par exemple)
+  * Contrôler la cohérence des données le plus tôt possible
+
+### Maîtriser l'état (2/2)
+
+* Notions fonctionnelles 
+  * Objets immuables ? (multithread)
+  * Entités (objets avec id) => Comparaison par Id et non par référence
 * Créer des Exceptions qui ont du sens (`MappingException`, `CommunicationException`, etc...)
