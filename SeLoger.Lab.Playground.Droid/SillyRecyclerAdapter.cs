@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 using Android.Content;
 using Android.Runtime;
+using Android.Support.V7.Util;
 using Android.Views;
 using Android.Widget;
 
@@ -50,10 +51,22 @@ namespace SeLoger.Lab.Playground.Droid
 
         public bool IsMaxCountReached => _data.Count >= _maxItems;
 
-        public void Add(IReadOnlyList<SillyDudeItemViewModel> viewModels, int maxItems)
+        public void Add(IReadOnlyList<SillyDudeItemViewModel> viewModels, int maxItems, bool isRefreshed)
         {
             int previousCount = ItemCount;
             _maxItems = maxItems;
+
+            if (isRefreshed)
+            {
+                SillyDudeDiffCallback diffCallback = new SillyDudeDiffCallback(_data, viewModels);
+                DiffUtil.DiffResult diffResult = DiffUtil.CalculateDiff(diffCallback);
+
+                _data.Clear();
+                _data.AddRange(viewModels);
+
+                diffResult.DispatchUpdatesTo(this);
+                return;
+            }
 
             _data.AddRange(viewModels);
             NotifyItemRangeInserted(previousCount, viewModels.Count);
@@ -93,6 +106,40 @@ namespace SeLoger.Lab.Playground.Droid
         {
             _itemClickedSource.Raise(this, _data[position]);
         }               
+    }
+
+    public class SillyDudeDiffCallback : DiffUtil.Callback
+    {
+        private readonly IList<SillyDudeItemViewModel> _oldList;
+        private readonly IReadOnlyList<SillyDudeItemViewModel> _newList;
+
+        public SillyDudeDiffCallback(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
+        public SillyDudeDiffCallback(IList<SillyDudeItemViewModel> oldList, IReadOnlyList<SillyDudeItemViewModel> newList)
+        {
+            _oldList = oldList;
+            _newList = newList;
+        }
+
+        public override bool AreContentsTheSame(int p0, int p1)
+        {
+            var oldItem = _oldList[p0];
+            var newItem = _newList[p1];
+
+            return oldItem.Role == newItem.Role && oldItem.Name == newItem.Name && oldItem.ImageUrl == newItem.ImageUrl;
+        }
+
+        public override bool AreItemsTheSame(int p0, int p1)
+        {
+            return _oldList[p0].Id == _newList[p1].Id;
+        }
+
+        public override int NewListSize => _newList.Count;
+
+        public override int OldListSize => _oldList.Count;
     }
 
     public class LoadingViewHolder : RecyclerView.ViewHolder
@@ -146,7 +193,7 @@ namespace SeLoger.Lab.Playground.Droid
                     .With(context)
                     .Load(itemViewModel.ImageUrl)
                     .BitmapTransform(new CropCircleTransformation(context))
-                    .Placeholder(Resource.Drawable.silly_48dp)
+                    .Placeholder(Resource.Drawable.silly_grey_48dp)
                     .Into(_photoView);
             }
         }

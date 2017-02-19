@@ -3,6 +3,7 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -15,6 +16,7 @@ using RecyclerViewAnimators.Animators;
 using SeLoger.Lab.Playground.Core;
 using SeLoger.Lab.Playground.Core.ViewModels;
 
+using DisplayState = SeLoger.Lab.Playground.Core.ViewModels.DisplayState;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace SeLoger.Lab.Playground.Droid
@@ -27,6 +29,8 @@ namespace SeLoger.Lab.Playground.Droid
         private Toolbar _toolbar;
 
         private RecyclerView _recyclerView;
+
+        private SwipeRefreshLayout _refreshLayout;
 
         private ProgressBar _loader;
 
@@ -50,19 +54,23 @@ namespace SeLoger.Lab.Playground.Droid
             
             SetContentView(Resource.Layout.main);
 
-            _toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
+            _toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             _toolbar.Title = _viewModel.Title;
             SetSupportActionBar(_toolbar);
 
             _loader = FindViewById<ProgressBar>(Resource.Id.progress_loading);
 
-            _errorViewSwitcher = new ErrorViewSwitcher(this, FindViewById<LinearLayout>(Resource.Id.view_error));
+            _errorViewSwitcher = new ErrorViewSwitcher(
+                this, 
+                FindViewById<LinearLayout>(Resource.Id.view_error));
 
             _adapter = new SillyRecyclerAdapter(this);
             _recyclerView = FindViewById<RecyclerView>(Resource.Id.list_silly);
             _recyclerView.SetItemAnimator(new ScaleInAnimator());
             _recyclerView.SetAdapter(_adapter);
             _recyclerView.SetLayoutManager(new LinearLayoutManager(this));
+
+            _refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.refresh_container);
         }
 
         protected override void OnResume()
@@ -72,6 +80,8 @@ namespace SeLoger.Lab.Playground.Droid
 
             _adapter.ItemClicked += AdapterOnItemClicked;
             _recyclerView.AddOnScrollListener(new InfiniteScrollListener(_viewModel.Paginator));
+            _refreshLayout.Refresh += RefreshLayoutRefresh;
+            _errorViewSwitcher.ErrorButtonClicked += ErrorButtonOnClick;
         }
 
         protected override void OnPause()
@@ -81,55 +91,101 @@ namespace SeLoger.Lab.Playground.Droid
 
             _adapter.ItemClicked -= AdapterOnItemClicked;
             _recyclerView.ClearOnScrollListeners();
+            _refreshLayout.Refresh -= RefreshLayoutRefresh;
+            _errorViewSwitcher.ErrorButtonClicked -= ErrorButtonOnClick;
         }
 
         private void ViewModelOnTaskCompleted(object sender, EventArgs eventArgs)
         {
-            Log.Info($"ViewModelOnTaskCompleted {_viewModel.State}");
+            Log.Info($"ViewModelOnTaskCompleted");
 
-            System.Diagnostics.Debug.Assert(_viewModel.State != ViewModelState.Loading 
-                && _viewModel.State != ViewModelState.NotStarted
-                && _viewModel.State != ViewModelState.LoadingMore);
+            ViewModelState viewModelState = _viewModel.GetState();
+
+            System.Diagnostics.Debug.Assert(viewModelState.Display != DisplayState.Loading);
 
             _toolbar.Title = _viewModel.Title;
 
-            UpdateVisibilities(_viewModel.State);
-            UpdateRecyclerView();
+            ProcessViewModelState(viewModelState);
         }
 
-        private void UpdateVisibilities(ViewModelState state)
+        private void RefreshLayoutRefresh(object sender, EventArgs e)
         {
-            _loader.Visibility = state == ViewModelState.Loading 
-                ? ViewStates.Visible 
-                : ViewStates.Gone;
-
-            _recyclerView.Visibility = state == ViewModelState.SuccessfullyLoaded
-                ? ViewStates.Visible
-                : ViewStates.Gone;
-
-            _errorViewSwitcher.Switch(state);
+            _refreshLayout.Refreshing = true;
+            _viewModel.Load();
         }
 
-        private void UpdateRecyclerView()
+        private void ProcessViewModelState(ViewModelState state)
         {
-            if (_viewModel.State == ViewModelState.SuccessfullyLoaded)
+            Log.Info($"Processing view model state {state}");
+            if (state.IsRefreshed)
             {
-                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items, _viewModel.Paginator.NotifyTask.Result.TotalCount);
+                _refreshLayout.Refreshing = false;
             }
-            else
+
+            _loader.SetIsVisible(state.Display == DisplayState.Loading);
+
+            if (_refreshLayout.SetIsVisible(state.Display == DisplayState.Result))
             {
-                _adapter = new SillyRecyclerAdapter(this);
+                UpdateRecyclerView(state.Error, state.IsRefreshed);
             }
+
+            if (_errorViewSwitcher.SetIsVisible(state.Display == DisplayState.Error))
+            {
+                _errorViewSwitcher.Switch(state.Error);
+            }
+        }
+
+        private void UpdateRecyclerView(ErrorType error, bool isRefreshed)
+        {
+            if (error == ErrorType.None)
+            {
+                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items, _viewModel.Paginator.NotifyTask.Result.TotalCount, isRefreshed);
+                if (isRefreshed)
+                {
+                    _recyclerView.ScrollToPosition(0);
+                }
+
+                return;
+            }
+
+            Toast.MakeText(this, ToErrorMessage(error), ToastLength.Short)
+                 .Show();
         }
 
         private void AdapterOnItemClicked(object sender, SillyDudeItemViewModel viewModel)
         {
             Log.Info($"AdapterOnItemClicked item {viewModel}");
         }
+   
+        private void ErrorButtonOnClick(object sender, EventArgs eventArgs)
+        {
+            Log.Info("ErrorButtonOnClick");
+            _viewModel.Load();
+            ProcessViewModelState(_viewModel.GetState());
+        }
+
+        private string ToErrorMessage(ErrorType errorType)
+        {
+            switch (errorType)
+            {
+                case ErrorType.None:
+                    return "Aucune erreur";
+                case ErrorType.Communication:
+                    return GetString(Resource.String.error_network);
+                case ErrorType.Unhandled:
+                    return GetString(Resource.String.error_unknown);
+                case ErrorType.NoResults:
+                    return GetString(Resource.String.no_results);
+                default:
+                    throw new InvalidOperationException($"Unhandled errortype ({errorType})");
+            }
+        }
     }
 
     public class ErrorViewSwitcher
     {
+        private static readonly ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(ErrorViewSwitcher));
+
         private readonly WeakReference<Context> _contextReference;
 
         private readonly LinearLayout _errorView;
@@ -149,8 +205,24 @@ namespace SeLoger.Lab.Playground.Droid
             _textView = errorView.FindViewById<TextView>(Resource.Id.text_error);
             _buttonView = errorView.FindViewById<Button>(Resource.Id.button_retry);
         }
+
+        public event EventHandler ErrorButtonClicked
+        {
+            add { _buttonView.Click += value; }
+            remove { _buttonView.Click -= value; }
+        }
         
-        public void Switch(ViewModelState viewModelState)
+        public bool IsVisible()
+        {
+            return _errorView.IsVisible();
+        }
+
+        public bool SetIsVisible(bool value)
+        {
+            return _errorView.SetIsVisible(value);
+        }
+        
+        public void Switch(ErrorType errorType)
         {
             Context context;
             if (!_contextReference.TryGetTarget(out context))
@@ -158,21 +230,24 @@ namespace SeLoger.Lab.Playground.Droid
                 return;
             }
 
-            switch (viewModelState)
+            switch (errorType)
             {
-                case ViewModelState.SuccessfullyLoadedNoResults:
+                case ErrorType.NoResults:
+                    Log.Info("Switching to no results error view");
                     _imageView.SetImageResource(Resource.Drawable.search_24dp);
                     _textView.Text = context.GetString(Resource.String.no_results);
                     _buttonView.Visibility = ViewStates.Gone;
                     break;
 
-                case ViewModelState.CommunicationError:
+                case ErrorType.Communication:
+                    Log.Info("Switching to communication error view");
                     _imageView.SetImageResource(Resource.Drawable.sad_cloud_24dp);
                     _textView.Text = context.GetString(Resource.String.error_network);
                     _buttonView.Visibility = ViewStates.Visible;
                     break;
 
-                case ViewModelState.UnhandledError:
+                case ErrorType.Unhandled:
+                    Log.Info("Switching to unhandled error view");
                     _imageView.SetImageResource(Resource.Drawable.bug_24dp);
                     _textView.Text = context.GetString(Resource.String.error_unknown);
                     _buttonView.Visibility = ViewStates.Visible;
@@ -182,8 +257,6 @@ namespace SeLoger.Lab.Playground.Droid
                     _errorView.Visibility = ViewStates.Gone;
                     return;
             }
-
-            _errorView.Visibility = ViewStates.Visible;
         }
     }
 }

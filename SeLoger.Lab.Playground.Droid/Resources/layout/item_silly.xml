@@ -6,7 +6,7 @@
     android:paddingRight="@dimen/spacing_medium"
     android:paddingTop="@dimen/spacing_medium"
     android:paddingBottom="@dimen/spacing_small"
-    android:background="@android:color/white">
+    android:background="@drawable/selectable_background_white">
     <ImageView
         android:id="@+id/image_silly"
         android:layout_width="@dimen/image_avatar_size"

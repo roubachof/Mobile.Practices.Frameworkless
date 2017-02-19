@@ -43,39 +43,54 @@ namespace SeLoger.Lab.Playground.Core.Services
         Task<SillyDudeModel> GetSilly(int id);
     }
 
-    public struct PageResult<TItem>
+    public class PageResult<TItem>
     {
         public static readonly PageResult<TItem> Empty = new PageResult<TItem>(0, new List<TItem>());
-
-        public readonly int TotalCount;
-
-        public readonly IReadOnlyList<TItem> Items;
 
         public PageResult(int totalCount, IReadOnlyList<TItem> items)
         {
             TotalCount = totalCount;
             Items = items;
         }
+
+        public int TotalCount { get; }
+
+        public IReadOnlyList<TItem> Items { get; }
     }
 
     public class SillyFrontService : ISillyFrontService
     {
-        private readonly Dictionary<int, SillyDudeModel> _repository;
+        private readonly List<SillyDudeModel> _repository;
 
         private readonly SuperShittyHttpClient _httpClient;
 
         public SillyFrontService()
         {
-            _httpClient = new SuperShittyHttpClient(false);
+            _httpClient = new SuperShittyHttpClient(true);
 
             var source = new Func<int, SillyDudeModel>[] { CreateJCVD, CreateKnightsOfNi, CreateLouisCK, CreateWillFerrell };
             var pseudoRandomGenerator = new Random();
             
-            _repository = new Dictionary<int, SillyDudeModel>(200);
-            for (int i = 0; i < 200; i++)
+            _repository = new List<SillyDudeModel>(200);
+            for (int i = 200; i > 0; i--)
             {
-                _repository.Add(i, source[pseudoRandomGenerator.Next(0, 4)](i));
+                _repository.Add(source[pseudoRandomGenerator.Next(0, 4)](i));
             }
+        }
+
+        private void SlightlyChangeFirstPage()
+        {
+            var source = new Func<int, SillyDudeModel>[] { CreateJCVD, CreateKnightsOfNi, CreateLouisCK, CreateWillFerrell };
+            var pseudoRandomGenerator = new Random();
+            int id = _repository[0].Id;
+
+            _repository.Insert(0, source[pseudoRandomGenerator.Next(0, 4)](++id));
+            _repository.Insert(0, source[pseudoRandomGenerator.Next(0, 4)](++id));
+
+            _repository.RemoveAt(4);
+
+            _repository.RemoveAt(6);
+            _repository.Insert(6, source[pseudoRandomGenerator.Next(0, 4)](++id));
         }
 
         private SillyDudeModel CreateLouisCK(int id)
@@ -138,19 +153,29 @@ namespace SeLoger.Lab.Playground.Core.Services
         {
             await _httpClient.ShittyGetStuff();
 
-            return new List<SillyDudeModel>(_repository.Values);
+            return new List<SillyDudeModel>(_repository);
         }
+
+        private int lastPage = 0;
 
         public async Task<PageResult<SillyDudeModel>> GetSillyPeoplePage(int pageNumber, int pageSize)
         {
             Debug.Assert(pageNumber > 0);
             Debug.Assert(pageSize >= 10);
 
+            if (pageNumber == 1 && lastPage >= 1)
+            {
+                // Refresh
+                SlightlyChangeFirstPage();
+            }
+
+            lastPage = pageNumber;
+
             await _httpClient.ShittyGetStuff();
 
             return new PageResult<SillyDudeModel>(
                 _repository.Count, 
-                _repository.Values.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList());
+                _repository.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList());
         }
 
         public async Task<SillyDudeModel> GetSilly(int id)
@@ -173,12 +198,15 @@ namespace SeLoger.Lab.Playground.Core.Services
             {
                 await Task.Delay(TimeSpan.FromSeconds(5));
 
-                if (_isRandomlyFailing && DateTime.UtcNow.Second % 3 == 0)
+                Random pseudoRandomGenerator = new Random();
+                int generatedNumber = pseudoRandomGenerator.Next(1, 5);
+
+                if (_isRandomlyFailing && generatedNumber == 3)
                 {
                     throw new UnexpectedException("Oh boy what this shit ?");
                 }
 
-                if (_isRandomlyFailing && DateTime.UtcNow.Second % 2 == 0)
+                if (_isRandomlyFailing && generatedNumber == 4)
                 {
                     throw new CommunicationException("Oh man cannot reach these lazy servers !");
                 }

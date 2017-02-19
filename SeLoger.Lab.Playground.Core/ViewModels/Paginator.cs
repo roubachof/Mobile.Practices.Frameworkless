@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using MetroLog;
@@ -23,8 +24,8 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
         private readonly Func<int, int, Task<PageResult<TResult>>> _pageSourceLoader;
 
         private readonly Action _onTaskCompleted;
-
-        private Dictionary<int, Task> _pageLoadingTasks;
+        
+        private bool _refreshRequested;
 
         public Paginator(int pageSize, int maxItemCount, Func<int, int, Task<PageResult<TResult>>> pageSourceLoader, Action onTaskCompleted)
         {
@@ -36,16 +37,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
             Reset();
         }
 
-        public int PageLoadedCount
-        {
-            get
-            {
-                lock (_syncRoot)
-                {
-                    return _pageLoadingTasks.Values.Count(task => task.Status == TaskStatus.RanToCompletion);
-                }
-            }
-        } 
+        public int PageLoadedCount { get; private set; }         
         
         public int LoadedCount => Items.Count;
 
@@ -57,6 +49,11 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
 
         public bool HasStarted => NotifyTask != null;
 
+        public bool HasRefreshed
+        {
+            get { lock (_syncRoot) return _refreshRequested; }
+        }
+
         public NotifyTask<PageResult<TResult>> NotifyTask { get; private set; }
 
         public ImmutableList<TResult> Items { get; private set; }
@@ -64,9 +61,8 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
         public void Reset()
         {
             Log.Info("Resetting paginator");
-            _pageLoadingTasks = new Dictionary<int, Task>();
+            PageLoadedCount = 0;
             Items = ImmutableList<TResult>.Empty;
-            NotifyTask = null;
         }
 
         public void OnScroll(int maxVisibleIndex)
@@ -105,15 +101,19 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
             Log.Info($"Loading page n°{pageNumber}");
             lock(_syncRoot)
             {
-                if (_pageLoadingTasks.ContainsKey(pageNumber))
-                {
-                    Log.Info($"The page n°{pageNumber} is currently loading or has already been loaded: returning");
-                    return;
-                }
-
-                if (IsFull)
+                if (pageNumber > PageLoadedCount && IsFull)
                 {
                     Log.Info($"Cannot load page {pageNumber} max item count has already been reached ({_maxItemCount})");
+                }
+
+                if (pageNumber == 1 && PageLoadedCount > 0)
+                {
+                    Log.Info("Refresh dectected");
+                    _refreshRequested = true;
+                }
+                else
+                {
+                    _refreshRequested = false;
                 }
 
                 NotifyTask = new NotifyTaskBase.Builder<PageResult<TResult>>(() => _pageSourceLoader(pageNumber, PageSize))
@@ -122,17 +122,21 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
                    .WithWhenCompleted(_onTaskCompleted)
                    .WithDefaultResult(PageResult<TResult>.Empty)
                    .Build();
-
-                _pageLoadingTasks.Add(pageNumber, NotifyTask.Task);
             }
         }
-        
+
         private void OnPageRetrieved(PageResult<TResult> result)
         {
-            Log.Info($"On page retrieved callback {result.Items.Count} items retrieved, total items are {result.TotalCount}");
+            Log.Info($"On page retrieved callback {result.Items.Count} items retrieved, total remote items is {result.TotalCount}");            
+            if (_refreshRequested)
+            {
+                Reset();
+            }
+
             TotalCount = Math.Min(result.TotalCount, _maxItemCount);
+            PageLoadedCount++;
             Items = Items.AddRange(result.Items);
-            Log.Info($"{Items.Count} items in paginator collection");
+            Log.Info($"{Items.Count} items in paginator collection, {PageLoadedCount} page loaded");
         }
 
         private void OnLoadingFaulted(Exception exception)

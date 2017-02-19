@@ -21,20 +21,19 @@ namespace SeLoger.Lab.Playground.Core.Utils
             var subsWeakRef = new WeakReference(subscriber);
             TDelegate handler = null;
             handler = converter(
-                new EventHandler<TArgs>(
-                    (s, e) =>
+                (s, e) =>
+                    {
+                        var subsStrongRef = subsWeakRef.Target as T;
+                        if (subsStrongRef != null)
                         {
-                            var subsStrongRef = subsWeakRef.Target as T;
-                            if (subsStrongRef != null)
-                            {
-                                action(subsStrongRef, e);
-                            }
-                            else
-                            {
-                                remove(handler);
-                                handler = null;
-                            }
-                        }));
+                            action(subsStrongRef, e);
+                        }
+                        else
+                        {
+                            remove(handler);
+                            handler = null;
+                        }
+                    });
             add(handler);
         }
 

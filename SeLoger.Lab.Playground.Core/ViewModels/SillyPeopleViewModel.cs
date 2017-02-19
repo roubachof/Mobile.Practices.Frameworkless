@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 using MetroLog;
@@ -11,7 +12,56 @@ using WeakEvent;
 
 namespace SeLoger.Lab.Playground.Core.ViewModels
 {
-    public enum ViewModelState
+    public enum DisplayState
+    {
+        NotStarted = 0,
+        Loading,
+        Result,
+        Error,
+    }
+
+    public enum ErrorType
+    {
+        None = 0,
+        Communication,
+        Unhandled,
+        NoResults 
+    }
+
+    public struct ViewModelState
+    {
+        public ViewModelState(DisplayState state, ErrorType error = ErrorType.None, bool isRefreshed = false)
+        {
+            Display = state;
+            Error = error;
+            IsRefreshed = isRefreshed;
+        }
+
+        public ViewModelState(DisplayState state, bool isRefreshed)
+            : this(state, ErrorType.None, isRefreshed)
+        {
+        }
+
+        public DisplayState Display { get; }
+
+        public bool IsRefreshed { get; }
+
+        public ErrorType Error { get; }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("ViewModelState (");
+            sb.Append($" {Enum.GetName(typeof(DisplayState), Display)}");
+            sb.Append($" {Enum.GetName(typeof(ErrorType), Error)}");
+
+            string refreshState = IsRefreshed ? "has been refreshed" : "has not been refreshed";
+            sb.Append($" {refreshState}");
+            sb.Append(")");
+            return sb.ToString();
+        }
+    }
+
+    public enum ViewModelState2
     {
         NotStarted = 0,
         Loading,
@@ -49,16 +99,19 @@ namespace SeLoger.Lab.Playground.Core.ViewModels
 
         public string Title => $"{Paginator.LoadedCount} silly guys loaded";
 
-        public ViewModelState State => Paginator.ToViewModelState();
-
         public Paginator<SillyDudeItemViewModel> Paginator { get; }
+
+        public ViewModelState GetState()
+        {
+            return Paginator.ToViewModelState();
+        }
 
         public void Load()
         {
             Log.Info("Loading view model");
             Paginator.LoadPage(1);
         }
-
+        
         private async Task<PageResult<SillyDudeItemViewModel>> PaginatorDataSource(int pageNumber, int pageSize)
         {
             var modelPageResult = await _sillyFrontService.GetSillyPeoplePage(pageNumber, pageSize);

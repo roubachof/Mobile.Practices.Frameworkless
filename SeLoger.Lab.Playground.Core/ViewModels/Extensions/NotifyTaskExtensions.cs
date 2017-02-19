@@ -12,24 +12,24 @@ namespace SeLoger.Lab.Playground.Core.ViewModels.Extensions
         {
             if (notifyTask == null)
             {
-                return ViewModelState.NotStarted;
+                return new ViewModelState(DisplayState.NotStarted);
             }
 
             if (notifyTask.IsSuccessfullyCompleted)
             {
-                return ViewModelState.SuccessfullyLoaded;
+                return new ViewModelState(DisplayState.Result);
             }
 
             if (notifyTask.IsFaulted)
             {
-                return notifyTask.InnerException is CommunicationException
-                    ? ViewModelState.CommunicationError
-                    : ViewModelState.UnhandledError;
+                return new ViewModelState(
+                    DisplayState.Error,
+                    notifyTask.InnerException is CommunicationException ? ErrorType.Communication : ErrorType.Unhandled);
             }
 
             if (notifyTask.IsNotCompleted)
             {
-                return ViewModelState.Loading;
+                return new ViewModelState(DisplayState.Loading);
             }
 
             throw new InvalidOperationException("Shouldn't get there: a task is either Completed or not");
@@ -39,7 +39,7 @@ namespace SeLoger.Lab.Playground.Core.ViewModels.Extensions
         {
             if (notifyTask == null)
             {
-                return ViewModelState.NotStarted;
+                return new ViewModelState(DisplayState.NotStarted);
             }
 
             if (notifyTask.IsSuccessfullyCompleted)
@@ -47,22 +47,22 @@ namespace SeLoger.Lab.Playground.Core.ViewModels.Extensions
                 var collection = notifyTask.Result as ICollection;
                 if (collection?.Count == 0 || notifyTask.Result == null)
                 {
-                    return ViewModelState.SuccessfullyLoadedNoResults;
+                    return new ViewModelState(DisplayState.Error, ErrorType.NoResults);
                 }
 
-                return ViewModelState.SuccessfullyLoaded;
+                return new ViewModelState(DisplayState.Result);
             }
 
             if (notifyTask.IsFaulted)
             {
-                return notifyTask.InnerException is CommunicationException
-                    ? ViewModelState.CommunicationError
-                    : ViewModelState.UnhandledError;
+                return new ViewModelState(
+                    DisplayState.Error,
+                    notifyTask.InnerException is CommunicationException ? ErrorType.Communication : ErrorType.Unhandled);
             }
 
             if (notifyTask.IsNotCompleted)
             {
-                return ViewModelState.Loading;
+                return new ViewModelState(DisplayState.Loading);
             }
 
             throw new InvalidOperationException("Shouldn't get there: a task is either Completed or not");

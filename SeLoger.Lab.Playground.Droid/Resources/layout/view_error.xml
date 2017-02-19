@@ -19,6 +19,8 @@
         android:ellipsize="none"
         android:textColor="@color/grey"
         android:layout_marginTop="@dimen/spacing_medium"
+        android:gravity="center"
+        android:maxLines="2"
         android:text="@string/error_network"/>
 
     <Button

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Silly!</string>
     <string name="error_network">Problème réseau: êtes-vous connecté à internet ?</string>
-    <string name="error_unknown">Euhhh, beh ça marche mais on sait pas trop pourquoi...</string>
+    <string name="error_unknown">Euhhh, beh ça marche pas mais on sait pas trop pourquoi...</string>
     <string name="error_server">Nous avons pu joindre nos serveurs mais ils étaient indisposés.</string>
     <string name="no_results">Aucun résultat n\'a été retourné</string>
     <string name="retry">Retenter votre chance</string>

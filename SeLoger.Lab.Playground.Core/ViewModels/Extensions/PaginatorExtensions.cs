@@ -10,36 +10,35 @@ namespace SeLoger.Lab.Playground.Core.ViewModels.Extensions
         {
             if (!paginator.HasStarted)
             {
-                return ViewModelState.NotStarted;
+                return new ViewModelState(DisplayState.NotStarted);
             }
 
             if (paginator.NotifyTask.IsSuccessfullyCompleted)
             {
-                return paginator.LoadedCount == 0 
-                    ? ViewModelState.SuccessfullyLoadedNoResults 
-                    : ViewModelState.SuccessfullyLoaded;
+                if (paginator.LoadedCount == 0)
+                {
+                    return new ViewModelState(DisplayState.Error, ErrorType.NoResults);
+                }
+
+                return new ViewModelState(DisplayState.Result, paginator.HasRefreshed);
             }
 
             if (paginator.NotifyTask.IsFaulted)
             {
-                if (paginator.LoadedCount == 0)
-                {
-                    return paginator.NotifyTask.InnerException is CommunicationException
-                               ? ViewModelState.CommunicationError
-                               : ViewModelState.UnhandledError;
-                }
-
-                return ViewModelState.SuccessfullyLoaded;
+                ErrorType error = paginator.NotifyTask.InnerException is CommunicationException
+                                      ? ErrorType.Communication
+                                      : ErrorType.Unhandled;
+                
+                return new ViewModelState(
+                    paginator.LoadedCount == 0 ? DisplayState.Error : DisplayState.Result,
+                    error,
+                    paginator.HasRefreshed);
             }
             
             if (paginator.NotifyTask.IsNotCompleted)
             {
-                if (paginator.LoadedCount > 0)
-                {
-                    return ViewModelState.LoadingMore;
-                }
-
-                return ViewModelState.Loading;
+                return new ViewModelState(
+                    paginator.LoadedCount > 0 ? DisplayState.Result : DisplayState.Loading);
             }
 
             throw new InvalidOperationException("Shouldn't get there: a task is either Completed or Not");
