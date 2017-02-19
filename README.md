@@ -1,7 +1,10 @@
-## SeLoger.Lab.Playground.Droid
-Best practices for Xamarin developpement post MVVM (without binding) (Xamarin.Android and iOS)
+# Coding Practices
 
-### Logging
+---
+
+## Logging
+
+---
 
 Une stratégie de log systématique permet de mieux comprendre le
 comportement de son programme.
@@ -15,12 +18,16 @@ output, rest, ...
 
 Renvoyer les x dernières lignes de log avec les crash reports ([voir getDescription de HockeyApp](https://support.hockeyapp.net/kb/client-integration-android/customization-options-for-android#-span-id-getdescription-method-getdescription-a-))
 
-#### Candidats sur mobile
+----
+
+### Candidats sur mobile
 
 * Metrolog
 * Serilog
 
-### Service rest
+---
+
+## Service rest
 
 Nouvelle équipe côté mobile développant un `Adapter` mobile agrégeant les 4 WS
 Seloger.
@@ -31,16 +38,33 @@ Seloger.
 
 `-` Temps de calcul intermédiaire
 
-#### Candidats
+----
+
+### Candidats
 
 Service Stack
 
-### Mocks
+---
+
+## Mocks
 
 * Utilisation de mocks systématique pour valider toutes les hypothèses UI
 * Injection des dépendances par constructeur
 
-### Base de données
+---
+
+## Access modifiers
+
+Utiliser les modificateurs d'accès de manière éclairée.
+Les interfaces sont des [modificateurs d'accès](http://blog.ploeh.dk/2011/02/28/Interfacesareaccessmodifiers/)
+
+* Si une collection ne peut être modifiée utiliser `IReadOnlyList`
+  * débat sur l'implémentation (down cast)
+* Ne pas avoir systématiquement de `get; set;` public
+
+---
+
+## Base de données
 
 Passage en no sql ? <br>
 Migration toujours nécessaire.
@@ -49,14 +73,18 @@ Migration toujours nécessaire.
 * [LiteDB](http://www.litedb.org/)
 * [MarcelloDB](http://www.marcellodb.org/)
 
-### View Models
+---
+
+## View Models
 
 Proposition de migration vers un monde post MVVM où la View est maître et subit le
 moins possible les callbacks du view model (minimiser `INotifyPropertyChanged`).
 * Simplification du workflow de la View (unidirectionnel)
 * Ajout de la notion d'état du view model (`enum Loading/SuccessfullyLoaded/CommunicationError/etc...`)
 
-### SRP-YAGNI-DIVIDE AND CONQUER-ETC
+----
+
+## SRP-YAGNI-DIVIDE AND CONQUER-ETC
 
 `CONSTAT:` le view model base est trop souvent un god object avec responsabilités multiples<br>
 `PROPOSITION:` composition `vs.` héritage
@@ -66,7 +94,9 @@ moins possible les callbacks du view model (minimiser `INotifyPropertyChanged`).
   * `Paginator` pour les listes infinies
   * `NotifyTask` pour chargement des données et état du chargement
 
-### Formulaires
+----
+
+## Formulaires
 
 * Stop au dual binding à gogo
 * L'encapsulation du model ne doit pas être automatique
@@ -74,7 +104,9 @@ moins possible les callbacks du view model (minimiser `INotifyPropertyChanged`).
   * Idem si il n'y a pas de relation `1..1` (par exemple 2 champs se combinent en 1)
   * Cas ou propriété ViewModel peut être null alors que celle du Model est requise
 
-### Exemple
+----
+
+## Exemple
 
 ```csharp
 public string CombinedField
@@ -97,14 +129,18 @@ public async Task Save()
     await SaveModel(model)
 ```
 
-### Views (Divide and Conquer)
+---
+
+## Views (Divide and Conquer)
 
 * Ne pas hésiter à découper ses vues en sous-vues
 * Mettre en relation sous-vues avec sub view models
 * Maitriser le cycle de vie des objets
   * `Contract.Require(ViewModel != null)`
 
-### Unsubscribe (GC)
+---
+
+## Unsubscribe (GC)
 
 `MUST READ` [Xamarin docs garbage_collection]( https://developer.xamarin.com/guides/android/advanced_topics/garbage_collection/)<br>
 `MUST SEE` [Advanced Memory Management Evolve 2013]( https://www.youtube.com/watch?v=VJsmrTQWD2k)
@@ -116,16 +152,29 @@ A cause des joyeusetés de Xamarin (GC cross ref)
 
 [Memory Perf Best Practices](https://developer.xamarin.com/guides/cross-platform/deployment,_testing,_and_metrics/memory_perf_best_practices/)
 
-### Maîtriser l'état (1/2)
+---
+
+## Maîtriser l'état (1/3)
 
 * Notions de design by contract `precondition`, `postconditions`, throw Exception en Debug => tests unitaires
   * Eviter les variables `Nullables`
   * Toujours assigner les listes par défaut (dans constructeur par défaut par exemple)
   * Contrôler la cohérence des données le plus tôt possible
 
-### Maîtriser l'état (2/2)
+----
 
-* Notions fonctionnelles 
-  * Objets immuables ? (multithread)
+## Maîtriser l'état (2/3)
+
+* Notions fonctionnelles
+  * Objets/collections immuables ? (multithread)
   * Entités (objets avec id) => Comparaison par Id et non par référence
 * Créer des Exceptions qui ont du sens (`MappingException`, `CommunicationException`, etc...)
+
+----
+
+## Maîtriser l'état (3/3)
+
+* Définir notre format d'échange avec WS précisément
+  * Contraintes
+  * Uniquement champs dont le client a besoin
+
