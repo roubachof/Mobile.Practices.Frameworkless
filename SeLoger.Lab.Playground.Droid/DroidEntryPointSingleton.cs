@@ -11,7 +11,6 @@ using System;
 using System.Threading.Tasks;
 
 using Android.Util;
-using SeLoger.Lab.Playground.Core;
 
 namespace SeLoger.Lab.Playground.Droid
 {
@@ -53,7 +52,7 @@ namespace SeLoger.Lab.Playground.Droid
 
         public static async Task InitializeApp()
         {
-            await EntryPoint.RegisterDependenciesAsync().ConfigureAwait(false);
+            await EntryPoint.InitializeCoreAsync().ConfigureAwait(false);
         }
     }
 }

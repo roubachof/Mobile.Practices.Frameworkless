@@ -142,15 +142,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CropCircleTransformation.cs" />
+    <Compile Include="Components\ErrorViewSwitcher.cs" />
+    <Compile Include="Components\CropCircleTransformation.cs" />
     <Compile Include="DroidEntryPointSingleton.cs" />
-    <Compile Include="InfiniteScrollListener.cs" />
-    <Compile Include="MainActivity.cs" />
+    <Compile Include="Components\InfiniteScrollListener.cs" />
+    <Compile Include="Activities\MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SillyRecyclerAdapter.cs" />
-    <Compile Include="SplashScreen.cs" />
-    <Compile Include="ViewExtensions.cs" />
+    <Compile Include="Adapters\SillyRecyclerAdapter.cs" />
+    <Compile Include="Activities\SplashScreen.cs" />
+    <Compile Include="Components\ViewExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\splash.xml">
@@ -192,9 +193,9 @@
     <AndroidResource Include="Resources\drawable\will_ferrell.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SeLoger.Lab.Playground.Core\SeLoger.Lab.Playground.Core.csproj">
+    <ProjectReference Include="..\SeLoger.Lab.Playground\SeLoger.Lab.Playground.csproj">
       <Project>{0D4809C0-6BEA-4801-A7C6-F4BC43BB828E}</Project>
-      <Name>SeLoger.Lab.Playground.Core</Name>
+      <Name>SeLoger.Lab.Playground</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
