@@ -106,7 +106,7 @@ namespace SeLoger.Lab.Playground.Services
 #if LOCAL_DATA
                 "louis_ck.jpg")
 #else
-                "http://pixel.nymag.com/imgs/daily/vulture/2016/04/21/21-louis-ck.w529.h529.jpg");
+                "http://www.brain-magazine.fr/m/posts/30019/originals/louis.jpg");
 #endif
         }
 
@@ -134,7 +134,7 @@ namespace SeLoger.Lab.Playground.Services
 #if LOCAL_DATA
                 "knights_of_ni.jpg")
 #else
-                "http://www.geekalerts.com/u/Knights-of-Ni-Plush-Hat.jpg");
+                "https://media0.giphy.com/media/ALBfFB6gP1evu/200_s.gif");
 #endif
         }
 

@@ -107,9 +107,9 @@ namespace SeLoger.Lab.Playground.Droid.Adapters
             viewHolder.Update(_contextReference, _data[position]);
         }
 
-        private void OnClick(int position)
+        private void OnClick(ImageView photo, int position)
         {
-            _itemClickedSource.Raise(this, _data[position]);
+            _itemClickedSource.Raise(photo, _data[position]);
         }               
     }
 
@@ -173,17 +173,14 @@ namespace SeLoger.Lab.Playground.Droid.Adapters
         {
         }
 
-        public SillyViewHolder(View itemView, Action<int> onItemClicked)
+        public SillyViewHolder(View itemView, Action<ImageView, int> onItemClicked)
             : base(itemView)
         {
             _photoView = itemView.FindViewById<ImageView>(Resource.Id.image_silly);
             _nameView = itemView.FindViewById<TextView>(Resource.Id.text_name);
             _descriptionView = itemView.FindViewById<TextView>(Resource.Id.text_description);
 
-            this.SetAnyHandler(
-                (e) => itemView.Click += e,
-                (e) => itemView.Click -= e,
-                (s, e) => onItemClicked(AdapterPosition));
+            itemView.Click += (s, e) => onItemClicked(_photoView, AdapterPosition);
         }
 
         public void Update(WeakReference<Context> contextReference, SillyDudeItemViewModel itemViewModel)

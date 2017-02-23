@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 using MetroLog;
 
@@ -50,7 +51,7 @@ namespace SeLoger.Lab.Playground.ViewModels
             add { _taskCompletedSource.Subscribe(value); }
             remove { _taskCompletedSource.Unsubscribe(value); }
         }
-
+        
         public string Title => $"{Paginator.LoadedCount} silly guys loaded";
 
         public Paginator<SillyDudeItemViewModel> Paginator { get; }

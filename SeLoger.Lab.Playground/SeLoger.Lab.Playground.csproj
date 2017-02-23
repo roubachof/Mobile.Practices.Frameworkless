@@ -31,6 +31,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Core\Command.cs" />
     <Compile Include="Core\Contract.cs" />
     <Compile Include="CoreEntryPoint.cs" />
     <Compile Include="Core\DependencyContainer.cs" />
@@ -40,7 +41,9 @@
     <Compile Include="Services\SuperShittyHttpClient.cs" />
     <Compile Include="Utils\MakeWeakExtension.cs" />
     <Compile Include="Models\SillyDudeModel.cs" />
-    <Compile Include="Core\Nito\AsyncCommand.cs" />
+    <Compile Include="Core\Nito\AsyncCommand.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Core\Nito\AsyncCommandBase.cs" />
     <Compile Include="Core\Nito\NotifyTask.Builder.cs" />
     <Compile Include="Core\Nito\NotifyTask.cs" />

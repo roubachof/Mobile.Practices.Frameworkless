@@ -1,7 +1,9 @@
 ﻿using System;
 
 using Android.App;
+using Android.Content;
 using Android.OS;
+using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
@@ -48,7 +50,6 @@ namespace SeLoger.Lab.Playground.Droid.Activities
             
             _viewModel = DependencyContainer.Instance.GetInstance<SillyPeopleViewModel>();
 
-            // No need to unsubscribe => weakevent
             _viewModel.TaskCompleted += ViewModelOnTaskCompleted;
 
             CreateViews();
@@ -102,6 +103,15 @@ namespace SeLoger.Lab.Playground.Droid.Activities
             _recyclerView.ClearOnScrollListeners();
             _refreshLayout.Refresh -= RefreshLayoutRefresh;
             _errorViewSwitcher.ErrorButtonClicked -= ErrorButtonOnClick;
+        }
+
+        protected override void OnDestroy()
+        {
+            Log.Info("OnDestroy");
+
+            _viewModel.TaskCompleted -= ViewModelOnTaskCompleted;
+
+            base.OnDestroy();
         }
 
         private void ViewModelOnTaskCompleted(object sender, EventArgs eventArgs)
@@ -158,7 +168,9 @@ namespace SeLoger.Lab.Playground.Droid.Activities
             Log.Info("UpdateRecyclerView");
             if (error == ErrorType.None)
             {
-                _adapter.Add(_viewModel.Paginator.NotifyTask.Result.Items, _viewModel.Paginator.NotifyTask.Result.TotalCount, isRefreshed);
+                var pageResult = _viewModel.Paginator.NotifyTask.Result;
+
+                _adapter.Add(pageResult.Items, pageResult.TotalCount, isRefreshed);
                 if (isRefreshed)
                 {
                     _recyclerView.ScrollToPosition(0);
@@ -174,6 +186,14 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         private void AdapterOnItemClicked(object sender, SillyDudeItemViewModel viewModel)
         {
             Log.Info($"AdapterOnItemClicked item {viewModel}");
+            
+            ActivityOptionsCompat options =
+                ActivityOptionsCompat.MakeSceneTransitionAnimation(this, (ImageView)sender, SillyDudeDetailActivity.TRANSITION_NAME);
+
+            Intent intent = new Intent(this, typeof(SillyDudeDetailActivity));
+            intent.PutExtra(SillyDudeDetailActivity.TRANSITION_NAME, viewModel.ImageUrl);                    
+            intent.PutExtra("id", viewModel.Id);
+            ActivityCompat.StartActivity(this, intent, options.ToBundle());
         }
    
         private void ErrorButtonOnClick(object sender, EventArgs eventArgs)

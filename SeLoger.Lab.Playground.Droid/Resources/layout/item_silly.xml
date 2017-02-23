@@ -12,7 +12,7 @@
         android:layout_width="@dimen/image_avatar_size"
         android:layout_height="@dimen/image_avatar_size"
         android:layout_marginRight="@dimen/spacing_medium"
-        android:src="@drawable/silly_48dp" />
+        android:src="@drawable/silly_grey_48dp" />
     <TextView
         android:id="@+id/text_name"
         style="@style/TextView.Subhead"
