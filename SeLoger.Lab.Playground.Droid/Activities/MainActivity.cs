@@ -46,22 +46,31 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         protected override void OnCreate(Bundle bundle)
         {
             Log.Info("OnCreate");
+
             base.OnCreate(bundle);
-            
-            _viewModel = DependencyContainer.Instance.GetInstance<SillyPeopleViewModel>();
-
-            _viewModel.TaskCompleted += ViewModelOnTaskCompleted;
-
-            CreateViews();
+                        
+            InitializeViewModel();
+            InitializeViews();
 
             _viewModel.Load();
         }
 
-        private void CreateViews()
+        private void InitializeViewModel()
+        {
+            Log.Info("InitializeViewModel");
+
+            _viewModel = DependencyContainer.Instance.GetInstance<SillyPeopleViewModel>();
+
+            _viewModel.TaskCompleted += ViewModelOnTaskCompleted;
+        }
+
+        private void InitializeViews()
         {
             Contract.Requires(() => _viewModel != null);
 
-            SetContentView(Resource.Layout.main);
+            Log.Info("InitializeViews");
+
+            SetContentView(Resource.Layout.activity_main);
 
             _toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             _toolbar.Title = _viewModel.Title;
@@ -86,10 +95,11 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         protected override void OnResume()
         {
             Log.Info("OnResume");
+
             base.OnResume();
 
             _adapter.ItemClicked += AdapterOnItemClicked;
-            _recyclerView.AddOnScrollListener(new InfiniteScrollListener(_viewModel.Paginator));
+            _recyclerView.AddOnScrollListener(new InfiniteScrollListener(_viewModel.InfiniteListLoader));
             _refreshLayout.Refresh += RefreshLayoutRefresh;
             _errorViewSwitcher.ErrorButtonClicked += ErrorButtonOnClick;
         }
@@ -97,12 +107,13 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         protected override void OnPause()
         {
             Log.Info("OnPause");
-            base.OnPause();
 
             _adapter.ItemClicked -= AdapterOnItemClicked;
             _recyclerView.ClearOnScrollListeners();
             _refreshLayout.Refresh -= RefreshLayoutRefresh;
             _errorViewSwitcher.ErrorButtonClicked -= ErrorButtonOnClick;
+            
+            base.OnPause();
         }
 
         protected override void OnDestroy()
@@ -130,6 +141,7 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         private void RefreshLayoutRefresh(object sender, EventArgs e)
         {
             Log.Info("RefreshLayoutRefresh");
+
             _refreshLayout.Refreshing = true;
             _viewModel.Load();
         }
@@ -137,6 +149,7 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         private void ProcessViewModelState(ViewModelState state)
         {
             Log.Info($"Processing view model state {state}");
+
             if (state.IsRefreshed)
             {
                 Log.Info("Refreshing set to false");
@@ -166,11 +179,10 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         private void UpdateRecyclerView(ErrorType error, bool isRefreshed)
         {
             Log.Info("UpdateRecyclerView");
+
             if (error == ErrorType.None)
             {
-                var pageResult = _viewModel.Paginator.NotifyTask.Result;
-
-                _adapter.Add(pageResult.Items, pageResult.TotalCount, isRefreshed);
+                _adapter.Add(_viewModel.LastPageResult.Items, _viewModel.LastPageResult.TotalCount, isRefreshed);
                 if (isRefreshed)
                 {
                     _recyclerView.ScrollToPosition(0);
@@ -187,18 +199,31 @@ namespace SeLoger.Lab.Playground.Droid.Activities
         {
             Log.Info($"AdapterOnItemClicked item {viewModel}");
             
-            ActivityOptionsCompat options =
-                ActivityOptionsCompat.MakeSceneTransitionAnimation(this, (ImageView)sender, SillyDudeDetailActivity.TRANSITION_NAME);
-
-            Intent intent = new Intent(this, typeof(SillyDudeDetailActivity));
-            intent.PutExtra(SillyDudeDetailActivity.TRANSITION_NAME, viewModel.ImageUrl);                    
+            Intent intent = new Intent(this, typeof(SillyDudeDetailsActivity));                   
             intent.PutExtra("id", viewModel.Id);
-            ActivityCompat.StartActivity(this, intent, options.ToBundle());
+
+            if ((int)Build.VERSION.SdkInt >= (int)BuildVersionCodes.Lollipop)
+            {
+                intent.PutExtra(SillyDudeDetailsActivity.TRANSITION_NAME, viewModel.ImageUrl);
+
+                var imageView = (ImageView)sender;
+                imageView.TransitionName = SillyDudeDetailsActivity.TRANSITION_NAME;
+
+                ActivityOptionsCompat options =
+                    ActivityOptionsCompat.MakeSceneTransitionAnimation(this, imageView, imageView.TransitionName);
+
+                ActivityCompat.StartActivity(this, intent, options.ToBundle());
+            }
+            else
+            {
+                StartActivity(intent);
+            }
         }
    
         private void ErrorButtonOnClick(object sender, EventArgs eventArgs)
         {
             Log.Info("ErrorButtonOnClick");
+
             _viewModel.Load();
             ProcessViewModelState(_viewModel.GetState());
         }

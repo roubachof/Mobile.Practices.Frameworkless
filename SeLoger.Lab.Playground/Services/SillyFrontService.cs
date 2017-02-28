@@ -43,7 +43,7 @@ namespace SeLoger.Lab.Playground.Services
         {
             var source = new Func<int, SillyDudeModel>[] { CreateJCVD, CreateKnightsOfNi, CreateLouisCK, CreateWillFerrell };
             var pseudoRandomGenerator = new Random();
-            int id = _repository[0].Id;
+            int id = _repository.Max(model => model.Id);
 
             _repository.Insert(0, source[pseudoRandomGenerator.Next(0, 4)](++id));
             _repository.Insert(0, source[pseudoRandomGenerator.Next(0, 4)](++id));
@@ -80,9 +80,9 @@ namespace SeLoger.Lab.Playground.Services
                 throw new UnexpectedException("Oops");
             }
 
-            lastPage = pageNumber;
-
             await _httpClient.ShittyGetStuff();
+
+            lastPage = pageNumber;
 
             return new PageResult<SillyDudeModel>(
                 _repository.Count, 
@@ -91,9 +91,9 @@ namespace SeLoger.Lab.Playground.Services
 
         public async Task<SillyDudeModel> GetSilly(int id)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await _httpClient.ShittyGetStuff();
 
-            return _repository[id];
+            return _repository.Single(model => model.Id == id);
         }
 
         private SillyDudeModel CreateLouisCK(int id)
@@ -104,7 +104,7 @@ namespace SeLoger.Lab.Playground.Services
                 "Comedian",
                 "There are people that really live by doing the right thing, but I don't know what that is, I'm really curious about that. I'm really curious about what people think they're doing when they're doing something evil, casually. I think it's really interesting, that we benefit from suffering so much, and we excuse ourselves from it.",
 #if LOCAL_DATA
-                "louis_ck.jpg")
+                "file:///android_asset/louis.jpg");
 #else
                 "http://www.brain-magazine.fr/m/posts/30019/originals/louis.jpg");
 #endif
@@ -118,9 +118,9 @@ namespace SeLoger.Lab.Playground.Services
                 "Actor",
                 "J’adore les cacahuètes. Tu bois une bière et tu en as marre du goût. Alors tu manges des cacahuètes. Les cacahuètes, c’est doux et salé, fort et tendre, comme une femme. Manger des cacahuètes. It’s a really strong feeling. Et après tu as de nouveau envie de boire une bière. Les cacahuètes, c’est le mouvement perpétuel à la portée de l’homme.",
 #if LOCAL_DATA
-                "jean_claude_van_damme.jpg")
+                "file:///android_asset/jcvd.jpg");
 #else
-                "http://www.cultivonsnous.fr/images/stories/jean-claude-van-damme.jpg");
+                "http://www.vandamme.ru/photos/movies/the_order/the_order23.jpg");
 #endif
         }
 
@@ -132,7 +132,7 @@ namespace SeLoger.Lab.Playground.Services
                 "Knights",
                 "Keepers of the sacred words 'Ni', 'Peng', and 'Neee-Wom'",
 #if LOCAL_DATA
-                "knights_of_ni.jpg")
+                "file:///android_asset/knight_ni.gif");
 #else
                 "https://media0.giphy.com/media/ALBfFB6gP1evu/200_s.gif");
 #endif
@@ -146,9 +146,9 @@ namespace SeLoger.Lab.Playground.Services
                 "Actor",
                 "Hey. They laughed at Louis Armstrong when he said he was gonna go to the moon. Now he’s up there, laughing at them.",
 #if LOCAL_DATA
-                "will_ferrell.jpg")
+                "file:///android_asset/anchorman.jpg");
 #else
-                "https://iwonderandwander.files.wordpress.com/2013/03/ferrell-twitter-photo.jpg?w=660");
+                "http://media.salon.com/2013/12/anchorman1.jpg");
 #endif
         }
     }

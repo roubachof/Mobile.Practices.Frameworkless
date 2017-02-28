@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;LOCAL_DATA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -30,6 +30,15 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>DEBUG;LOCAL_DATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Core\Command.cs" />
     <Compile Include="Core\Contract.cs" />
@@ -39,7 +48,6 @@
     <Compile Include="Core\MemoryTarget.cs" />
     <Compile Include="Services\ISillyFrontService.cs" />
     <Compile Include="Services\SuperShittyHttpClient.cs" />
-    <Compile Include="Utils\MakeWeakExtension.cs" />
     <Compile Include="Models\SillyDudeModel.cs" />
     <Compile Include="Core\Nito\AsyncCommand.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
@@ -55,6 +63,7 @@
     <Compile Include="ViewModels\Extensions\NotifyTaskExtensions.cs" />
     <Compile Include="InfiniteList\Paginator.cs" />
     <Compile Include="ViewModels\Extensions\PaginatorExtensions.cs" />
+    <Compile Include="ViewModels\SillyDudeDetailsViewModel.cs" />
     <Compile Include="ViewModels\SillyDudeItemViewModel.cs" />
     <Compile Include="ViewModels\SillyPeopleViewModel.cs" />
     <Compile Include="ViewModels\ViewModelState.cs" />
@@ -62,6 +71,8 @@
   <ItemGroup>
     <Content Include="project.json" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

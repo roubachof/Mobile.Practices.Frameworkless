@@ -16,6 +16,14 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace SeLoger.Contracts
 {
+    [AttributeUsage(
+        AttributeTargets.Class | AttributeTargets.Constructor | AttributeTargets.Delegate | AttributeTargets.Event
+        | AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false,
+        Inherited = true)]
+    public sealed class PureAttribute : Attribute
+    {
+    }
+
     public class ContractViolationException : Exception
     {
         public ContractViolationException(string message)

@@ -11,6 +11,10 @@ using SeLoger.Lab.Playground.Services;
 
 namespace SeLoger.Lab.Playground.InfiniteList
 {
+    /// <summary>
+    /// Interface Segregation / Single Responsability Principle
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
     public class Paginator<TResult> : IPagedListProvider, IInfiniteListLoader
     {
         private static readonly ILogger Log = LoggerFactory.GetLogger(nameof(Paginator<TResult>));

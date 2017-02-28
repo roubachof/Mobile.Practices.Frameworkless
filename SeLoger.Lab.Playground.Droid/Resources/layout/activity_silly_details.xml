@@ -10,7 +10,7 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -25,17 +25,17 @@
 
             <ImageView
                 android:id="@+id/image_silly_dude"
+                android:transitionName="photo"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
-                app:layout_collapseMode="parallax"/>
+                app:layout_collapseMode="parallax" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:layout_collapseMode="pin" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -48,21 +48,48 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/spacing_medium">
-            <TextView
-                style="@style/TextView.Subhead"
-                android:text="Comedian"
-                android:layout_marginBottom="@dimen/spacing_small"/>
-            <TextView
-                style="@style/TextView.Body.Secondary"
-                android:ellipsize="none"
-                android:lines="20"
-                android:text="There are people that really live by doing the right thing, but I don't know what that is, I'm really curious about that. I'm really curious about what people think they're doing when they're doing something evil, casually. I think it's really interesting, that we benefit from suffering so much, and we excuse ourselves from it." />
-        </LinearLayout>
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progress_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_gravity="center_horizontal"
+                android:visibility="visible"
+                />
+
+            <include
+                layout="@layout/view_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                />
+
+            <LinearLayout
+                android:id="@+id/layout_details"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="@dimen/spacing_medium"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/text_role"
+                    style="@style/TextView.Subhead"
+                    android:text="Silly dude role"
+                    android:layout_marginBottom="@dimen/spacing_small"/>
+                <TextView
+                    android:id="@+id/text_description"
+                    style="@style/TextView.Body.Secondary"
+                    android:ellipsize="none"
+                    android:lines="20"
+                    android:text="Long description" />
+            </LinearLayout>
+
+        </FrameLayout>
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton

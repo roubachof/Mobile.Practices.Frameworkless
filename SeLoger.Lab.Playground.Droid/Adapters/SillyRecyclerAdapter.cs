@@ -14,7 +14,6 @@ using MetroLog;
 
 using SeLoger.Lab.Playground.Core;
 using SeLoger.Lab.Playground.Droid.Components;
-using SeLoger.Lab.Playground.Utils;
 using SeLoger.Lab.Playground.ViewModels;
 
 using WeakEvent;
@@ -191,12 +190,22 @@ namespace SeLoger.Lab.Playground.Droid.Adapters
             Context context;
             if (!string.IsNullOrWhiteSpace(itemViewModel.ImageUrl) && contextReference.TryGetTarget(out context))
             {
-                Glide
-                    .With(context)
-                    .Load(itemViewModel.ImageUrl)
-                    .BitmapTransform(new CropCircleTransformation(context))
-                    .Placeholder(Resource.Drawable.silly_grey_48dp)
-                    .Into(_photoView);
+                var glideRequest = Glide.With(context);
+
+                if (itemViewModel.ImageUrl.StartsWith("file"))
+                {
+                    glideRequest.Load(Android.Net.Uri.Parse(itemViewModel.ImageUrl))
+                        .BitmapTransform(new CropCircleTransformation(context))
+                        .Placeholder(Resource.Drawable.silly_grey_48dp)
+                        .Into(_photoView);
+                }
+                else
+                {
+                    glideRequest.Load(itemViewModel.ImageUrl)
+                        .BitmapTransform(new CropCircleTransformation(context))
+                        .Placeholder(Resource.Drawable.silly_grey_48dp)
+                        .Into(_photoView);
+                }
             }
         }
     }

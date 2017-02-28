@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 using MetroLog;
 
@@ -16,7 +14,7 @@ using WeakEvent;
 
 namespace SeLoger.Lab.Playground.ViewModels
 {
-    public enum ViewModelState2
+    public enum ViewModelState0
     {
         NotStarted = 0,
         Loading,
@@ -35,15 +33,23 @@ namespace SeLoger.Lab.Playground.ViewModels
 
         private const int MAX_ITEMS = 300;
 
-        private readonly WeakEventSource<EventArgs> _taskCompletedSource = new WeakEventSource<EventArgs>();
+        private readonly WeakEventSource<EventArgs> _taskCompletedSource;
 
         private readonly ISillyFrontService _sillyFrontService;
 
+        /// <summary>
+        /// Single Responsibility Principle
+        /// </summary>
+        private readonly Paginator<SillyDudeItemViewModel> _paginator;
+
         public SillyPeopleViewModel(ISillyFrontService sillyFrontService)
         {
+            Log.Info("Constructing SillyPeopleViewModel");
+
             _sillyFrontService = sillyFrontService;
 
-            Paginator = new Paginator<SillyDudeItemViewModel>(PAGE_SIZE, MAX_ITEMS, PaginatorDataSource, OnPaginatorTaskCompleted);
+            _taskCompletedSource = new WeakEventSource<EventArgs>();
+            _paginator = new Paginator<SillyDudeItemViewModel>(PAGE_SIZE, MAX_ITEMS, PaginatorDataSource, OnPaginatorTaskCompleted);
         }
         
         public event EventHandler<EventArgs> TaskCompleted
@@ -52,19 +58,26 @@ namespace SeLoger.Lab.Playground.ViewModels
             remove { _taskCompletedSource.Unsubscribe(value); }
         }
         
-        public string Title => $"{Paginator.LoadedCount} silly guys loaded";
+        public string Title => $"{_paginator.LoadedCount} silly guys loaded";
 
-        public Paginator<SillyDudeItemViewModel> Paginator { get; }
+        /// <summary>
+        /// Law Of Demeter
+        /// </summary>
+        public IInfiniteListLoader InfiniteListLoader => _paginator;
+
+        public PageResult<SillyDudeItemViewModel> LastPageResult 
+            => _paginator.NotifyTask == null ? PageResult<SillyDudeItemViewModel>.Empty : _paginator.NotifyTask.Result;
 
         public ViewModelState GetState()
         {
-            return Paginator.ToViewModelState();
+            return _paginator.ToViewModelState();
         }
 
+        /// Indirect workflow View => ViewModel => View
         public void Load()
         {
             Log.Info("Loading view model");
-            Paginator.LoadPage(1);
+            _paginator.LoadPage(1);
         }
         
         private async Task<PageResult<SillyDudeItemViewModel>> PaginatorDataSource(int pageNumber, int pageSize)
@@ -77,7 +90,7 @@ namespace SeLoger.Lab.Playground.ViewModels
         
         private void OnPaginatorTaskCompleted()
         {
-            Contract.Requires(() => Paginator.NotifyTask != null);
+            Contract.Requires(() => _paginator.NotifyTask != null);
 
             Log.Info("OnPaginatorTaskCompleted");
             _taskCompletedSource.Raise(this, EventArgs.Empty);
