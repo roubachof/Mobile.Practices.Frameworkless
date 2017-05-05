@@ -113,6 +113,9 @@
     <Reference Include="Xamarin.Android.Support.Vector.Drawable, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.Vector.Drawable.25.1.1\lib\MonoAndroid70\Xamarin.Android.Support.Vector.Drawable.dll</HintPath>
     </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activities\MainActivity.cs" />
@@ -246,7 +249,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mobile.Practices.Frameworkless\Mobile.Practices.Frameworkless.csproj">
-      <Project>{00f944c1-4bed-44f1-a461-d06f943f93f5}</Project>
+      <Project>{93E3BE61-26F7-429A-AECF-A699075B0D38}</Project>
       <Name>Mobile.Practices.Frameworkless</Name>
     </ProjectReference>
   </ItemGroup>
