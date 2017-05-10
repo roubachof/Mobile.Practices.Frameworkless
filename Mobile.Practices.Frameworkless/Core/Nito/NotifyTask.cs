@@ -212,7 +212,7 @@ namespace Mobile.Practices.Frameworkless.Core.Nito
         /// <param name="task">The task to watch.</param>
         public static NotifyTask Create(Task task)
         {
-            return new NotifyTask(task);
+            return new NotifyTask(task, isHot: true);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Mobile.Practices.Frameworkless.Core.Nito
         /// <param name="defaultResult">The default "result" value for the task while it is not yet complete.</param>
         public static NotifyTask<TResult> Create<TResult>(Task<TResult> task, TResult defaultResult = default(TResult))
         {
-            return new NotifyTask<TResult>(task, defaultResult);
+            return new NotifyTask<TResult>(task, defaultResult, isHot: true);
         }
 
         /// <summary>

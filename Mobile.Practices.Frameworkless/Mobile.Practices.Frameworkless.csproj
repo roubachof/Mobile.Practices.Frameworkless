@@ -11,6 +11,12 @@
     <PackageReference Include="SimpleInjector" Version="4.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
     <PackageReference Include="ThomasLevesque.WeakEvent" Version="1.0.1" />
+    <PackageReference Include="SeLoger.Mobile.ToolKit" Version="1.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="SeLoger.Mobile.ToolKit">
+      <HintPath>..\packages\SeLoger.Mobile.ToolKit.1.0.3\lib\netstandard1.4\SeLoger.Mobile.ToolKit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

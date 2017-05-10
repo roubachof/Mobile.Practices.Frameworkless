@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CoreEntryPoint.cs" company="The Silly Company">
 //   The Silly Company 2016. All rights reserved.
 // </copyright>
@@ -17,6 +17,8 @@ using MetroLog.Targets;
 using Mobile.Practices.Frameworkless.Core;
 using Mobile.Practices.Frameworkless.Services;
 
+using SeLoger.Mobile.ToolKit.Core;
+
 namespace Mobile.Practices.Frameworkless
 {
     public class CoreEntryPoint
@@ -28,6 +30,7 @@ namespace Mobile.Practices.Frameworkless
             await Task.Run(() => RegisterDependencies()).ConfigureAwait(false);
 
             InitializeLogTargets();
+            ToolKit.Initialize();
         }
         
         private void RegisterDependencies()
@@ -41,7 +44,7 @@ namespace Mobile.Practices.Frameworkless
             foreach (var viewModelType in 
                 ProjectAssembly.ExportedTypes.Where(
                     type =>
-                    type.Namespace.StartsWith("SeLoger.Lab.Playground.ViewModels")
+                    type.Namespace.StartsWith("Mobile.Practices.Frameworkless.ViewModels")
                     && !type.GetTypeInfo().IsAbstract && type.Name.EndsWith("ViewModel")))
             {
                 container.Register(viewModelType);

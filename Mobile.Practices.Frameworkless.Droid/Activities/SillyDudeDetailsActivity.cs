@@ -13,11 +13,14 @@ using Com.Bumptech.Glide;
 using MetroLog;
 
 using Mobile.Practices.Frameworkless.Core;
+using Mobile.Practices.Frameworkless.Core.Nito;
 using Mobile.Practices.Frameworkless.Droid.Components;
 using Mobile.Practices.Frameworkless.ViewModels;
 
 using SeLoger.Contracts;
-
+using SeLoger.Mobile.ToolKit.Core;
+using SeLoger.Mobile.ToolKit.Location;
+using SeLoger.Mobile.ToolKit.Services;
 using DisplayState = Android.Views.DisplayState;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -41,6 +44,8 @@ namespace Mobile.Practices.Frameworkless.Droid.Activities
         private TextView _roleTextView;
 
         private TextView _descriptionTextView;
+
+        private FloatingActionButton _fab;
 
         public override bool OnSupportNavigateUp()
         {
@@ -67,6 +72,7 @@ namespace Mobile.Practices.Frameworkless.Droid.Activities
             base.OnResume();
 
             _errorViewSwitcher.ErrorButtonClicked += ErrorButtonOnClick;
+			_fab.Click += FabClick;
         }
 
         protected override void OnPause()
@@ -74,6 +80,7 @@ namespace Mobile.Practices.Frameworkless.Droid.Activities
             Log.Info("OnPause");
 
             _errorViewSwitcher.ErrorButtonClicked -= ErrorButtonOnClick;
+			_fab.Click -= FabClick;
 
             base.OnPause();
         }
@@ -137,6 +144,18 @@ namespace Mobile.Practices.Frameworkless.Droid.Activities
 
             _roleTextView = detailsLayout.FindViewById<TextView>(Resource.Id.text_role);
             _descriptionTextView = detailsLayout.FindViewById<TextView>(Resource.Id.text_description);
+            _fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
+        }
+
+        private async void FabClick(object sender, EventArgs e)
+        {
+            var permissionService = IoC.GetInstance<IPermissionsService>();
+
+            await permissionService.RequestPermissionsAsync(Permission.Location);
+
+            var locationService = IoC.GetInstance<ILocationService>();
+
+            var position = await locationService.GetPositionAsync();
         }
 
         private void UpdateDetails(ViewModelState state)
